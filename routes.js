@@ -21,4 +21,11 @@ router.get("/", async function (req, res, next) {
   return res.json({photos})
 });
 
+router.get("/:id", async function (req, res, next) {
+  // call some class method that gets photos from amazon
+  const photos = await Bucket.getAllPhotos();
+
+  return res.json({photos})
+});
+
 module.exports = router;
