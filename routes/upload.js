@@ -1,45 +1,63 @@
 "use strict";
 
 /** Routes for photos. */
-
-// const jsonschema = require("jsonschema");
-
-const express = require("express");
+const express = require('express');
 const multer = require('multer');
-const AWS = require('aws-sdk');
-
-const { ACCESS_KEY,
-  SECRET_ACCESS_KEY,
-  REGION } = require('./config');
+const crypto = require('crypto');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' })
 
-AWS.config.update({
-  accessKeyId: ACCESS_KEY,
-  secretAccessKey: SECRET_ACCESS_KEY,
+// Import S3 client to upload to bucket.
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+
+/** Generate a random hex code for an image name */
+function randomImageName(bytes = 32) {
+  return crypto.randomBytes(bytes).toString('hex');
+}
+
+// Pull bucket authentication data
+const { ACCESS_KEY,
+  SECRET_ACCESS_KEY,
+  REGION,
+  BUCKET_NAME } = require('../config');
+
+// Pass auth data into S3 clientß
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: ACCESS_KEY,
+    secretAccessKey: SECRET_ACCESS_KEY
+  },
   region: REGION
 });
 
-const s3 = new AWS.S3();
+// Setup multer buffer storageß
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-router.post("/upload", upload.single('image'), async function (req, res, next) {
-  // call some class method that gets photos from amazon
-  // Multer here, gets metadata and 
-  console.log('File metadata:', req.file);
-  console.log('File source:', req.file.path);
+/* whatever you specify in the .single parameter, has to be the name attribute
+the frontend form */
 
-  // upload to computer (multer pulls photo and puts it into sdk)
-    // just send img to 
-      // let photoData = await S3Class.uploadImage(image); goes to S3 returns object_url
-      // PhotoClass.uploadImage({photoData}); goes to database DONT WANT IMAGE THOUGH
+/** Upload a photo to S3 bucket and save data to the DB */
+router.post("/", upload.single('image'), async function (req, res, next) {
+  console.log("req.body ===", req.body);
+  console.log('req.file ===', req.file);
 
 
-  // upload to S3 server (the photo that was plucked from multer)
+  // Send data to S3
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: randomImageName(),
+    Body: req.file.buffer,
+    ContentType: req.file.mimetype,
+  };
+  const command = new PutObjectCommand(params);
+  await s3.send(command);
 
-  const photo = await Bucket.uploadPhoto();
 
-  return res.json({ photo })
+
+  res.send({});
 });
+
+
 
 module.exports = router;
