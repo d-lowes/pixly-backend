@@ -44,7 +44,7 @@ const s3 = new S3Client({
   region: REGION
 });
 
-const AWS_URL = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com`
+const AWS_URL = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com`;
 
 class PhotoFile {
 
@@ -98,29 +98,39 @@ class PhotoFile {
   /** Gets all photos from database and s3 server */
   static async getAllPhotos() {
     const result = await db.query(`
-      SELECT photo_id 
-      FROM photos 
+      SELECT photo_id, metadata, caption, date_created
+      FROM photos
       ORDER BY date_created DESC
-    `)
+    `);
 
-    const photos = result.rows
-    const photoUrls = photos.map((photo) => `${AWS_URL}/${photo.photo_id}`)
+    const photos = result.rows;
+    const photoObjs = photos.map((photo) => ({
+      photoId: photo.photo_id,
+      metadata: photo.metadata,
+      caption: photo.caption,
+      objectURL: `${AWS_URL}/${photo.photo_id}`
+    }));
 
-    return photoUrls;
+    return photoObjs;
   }
 
   /** Gets a photo from database and s3 server */
   static async getPhoto(id) {
     const result = await db.query(`
-      SELECT photo_id
-      FROM photos 
-      WHERE photo_id = $1
-      `, [id])
+      SELECT photo_id, metadata, caption, date_created
+      FROM photos
+      ORDER BY date_created DESC
+    `);
 
     const photo = result.rows[0];
-    const photoUrl = `${AWS_URL}/${photo.photo_id}`;
+    const photoObj = {
+      photoId: photo.photo_id,
+      metadata: photo.metadata,
+      caption: photo.caption,
+      objectURL: `${AWS_URL}/${photo.photo_id}`
+    };
 
-    return photoUrl;
+    return photoObj;
   }
 
   /** Deletes a photo from database and s3 server */
@@ -138,7 +148,7 @@ class PhotoFile {
     const command = new DeleteObjectCommand(params);
     await s3.send(command);
 
-    return 'Successfully deleted'
+    return 'Successfully deleted';
   }
 }
 

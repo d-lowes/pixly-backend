@@ -11,8 +11,8 @@ const PhotoFile = require("../photoFile");
 const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 
-/** Get all photos 
- * 
+/** Get all photos
+ *
  * GET / => [{photo_url}, ... ]
  *
  * Returns an array of photo object URLs.
@@ -27,7 +27,7 @@ router.get("/", async function (req, res, next) {
 
 
 /** Get single photo
- * 
+ *
  * GET / => [{photo_url}]
  *
  * Returns a single object photo URL.
@@ -43,7 +43,7 @@ router.get("/:id", async function (req, res, next) {
 
 
 /** Delete a  single photo
- * 
+ *
  * delete / => [{photo_url}]
  *
  * Returns 'Successfully deleted'
