@@ -5,7 +5,11 @@
 // const jsonschema = require("jsonschema");
 
 const express = require("express");
-const router = express.Router();
+const router = new express.Router();
+
+const PhotoFile = require("../photoFile");
+const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
+
 
 /** Get all photos 
  * 
@@ -16,9 +20,9 @@ const router = express.Router();
 */
 router.get("/", async function (req, res, next) {
   // call some class method that gets photos from amazon
-  const photos = await Bucket.getAllPhotos();
+  const photos = await PhotoFile.getAllPhotos();
 
-  return res.json({photos})
+  return res.json({ photos })
 });
 
 
@@ -31,9 +35,25 @@ router.get("/", async function (req, res, next) {
 */
 router.get("/:id", async function (req, res, next) {
   // call some class method that gets photos from amazon
-  const photo = await Bucket.getPhoto();
+  const id = req.params.id
+  const photo = await PhotoFile.getPhoto(id);
 
-  return res.json({photo})
+  return res.json({ photo })
+});
+
+
+/** Delete a  single photo
+ * 
+ * delete / => [{photo_url}]
+ *
+ * Returns 'Successfully deleted'
+*/
+router.delete("/:id", async function (req, res, next) {
+  // call some class method that gets photos from amazon
+  const id = req.params.id
+  const message = await PhotoFile.deletePhoto(id);
+
+  return res.json({ message })
 });
 
 

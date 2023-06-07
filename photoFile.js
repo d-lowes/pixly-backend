@@ -9,7 +9,11 @@ const db = require("./db");
 const ExifImage = require('exif').ExifImage;
 
 // Import S3 client to upload to bucket.
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+// const client = new S3Client(clientParams);
+// const command = new GetObjectCommand(getObjectParams);
+// const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
 
 
 /****************************************************************************
@@ -26,6 +30,7 @@ const { ACCESS_KEY,
   SECRET_ACCESS_KEY,
   REGION,
   BUCKET_NAME } = require('./config');
+const { post } = require('./app');
 
 
 /**************************************************************************
@@ -39,14 +44,12 @@ const s3 = new S3Client({
   region: REGION
 });
 
+const AWS_URL = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com`
 
 class PhotoFile {
 
+  /** Uploads a photo to database and s3 server */
   static async uploadPhoto(file, body) {
-    /****************************************************************************
-   * UPLOAD TO S3
-   */
-
     console.log("file ===", file);
     console.log("body ===", body);
 
@@ -92,15 +95,51 @@ class PhotoFile {
     return photoResponse;
   }
 
-  // static async getAllPhotos() {
-  //   // make a request to S3/SDK
-  //   // return array of object URLs
-  // }
+  /** Gets all photos from database and s3 server */
+  static async getAllPhotos() {
+    const result = await db.query(`
+      SELECT photo_id 
+      FROM photos 
+      ORDER BY date_created DESC
+    `)
 
-  // static async getPhoto() {
-  //   // using the photo title or ID, get the photo from S3
-  //   // return the object URL
-  // }
+    const photos = result.rows
+    const photoUrls = photos.map((photo) => `${AWS_URL}/${photo.photo_id}`)
+
+    return photoUrls;
+  }
+
+  /** Gets a photo from database and s3 server */
+  static async getPhoto(id) {
+    const result = await db.query(`
+      SELECT photo_id
+      FROM photos 
+      WHERE photo_id = $1
+      `, [id])
+
+    const photo = result.rows[0];
+    const photoUrl = `${AWS_URL}/${photo.photo_id}`;
+
+    return photoUrl;
+  }
+
+  /** Deletes a photo from database and s3 server */
+  static async deletePhoto(id) {
+    const result = await db.query(`
+      DELETE FROM photos
+      WHERE photo_id = $1
+    `, [id]);
+
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: id
+    };
+
+    const command = new DeleteObjectCommand(params);
+    await s3.send(command);
+
+    return 'Successfully deleted'
+  }
 }
 
 module.exports = PhotoFile;

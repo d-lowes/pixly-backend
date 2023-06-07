@@ -5,10 +5,6 @@
 const express = require('express');
 // photo uploader
 const multer = require('multer');
-// random hex generator
-const crypto = require('crypto');
-// postgresql db
-const db = require("../db");
 // router
 const router = new express.Router();
 // Class with static methods
