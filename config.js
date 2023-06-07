@@ -11,7 +11,6 @@ const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY;
 const REGION = process.env.REGION;
 const BUCKET_NAME = process.env.BUCKET_NAME;
 
-
 const PORT = +process.env.PORT || 3001;
 
 // Use dev database, testing database, or via env var, production database
