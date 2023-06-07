@@ -8,7 +8,9 @@ require("colors");
 const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
 const ACCESS_KEY = process.env.ACCESS_KEY;
 const SECRET_ACCESS_KEY = process.env.SECRET_ACCESS_KEY;
-const REGION = "us-west-2";
+const REGION = process.env.REGION;
+const BUCKET_NAME = process.env.BUCKET_NAME;
+
 
 const PORT = +process.env.PORT || 3001;
 
@@ -25,5 +27,6 @@ module.exports = {
   ACCESS_KEY,
   SECRET_ACCESS_KEY,
   REGION,
+  BUCKET_NAME,
   getDatabaseUri,
 };
