@@ -5,6 +5,7 @@
     "aws-sdk": "^2.1392.0",
     "body-parser": "^2.0.0-beta.1",
     "colors": "^1.4.0",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.1.4",
     "exif": "^0.6.0",
