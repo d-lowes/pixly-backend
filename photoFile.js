@@ -49,12 +49,10 @@ const AWS_URL = `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com`;
 class PhotoFile {
 
   /** Uploads a photo to database and s3 server */
-  static async uploadPhoto(file, body) {
+  static async uploadPhoto(file) {
     console.log("file ===", file);
-    console.log("body ===", body);
 
     const photoId = randomImageName();
-    const caption = body.caption;;
     const buffer = file.buffer;
 
     const params = {
@@ -75,17 +73,14 @@ class PhotoFile {
     const result = await db.query(`
               INSERT INTO photos (photo_id,
                                   metadata,
-                                  caption,
                                   date_created)
-              VALUES ($1, $2, $3, $4)
+              VALUES ($1, $2, $3)
               RETURNING
                     photo_id AS photoId,
                     metadata,
-                    caption,
                     date_created AS dateCreated`, [
       photoId,
       JSON.stringify(exifData),
-      caption,
       new Date()
     ]
     );
@@ -98,7 +93,7 @@ class PhotoFile {
   /** Gets all photos from database and s3 server */
   static async getAllPhotos() {
     const result = await db.query(`
-      SELECT photo_id, metadata, caption, date_created
+      SELECT photo_id, metadata, date_created
       FROM photos
       ORDER BY date_created DESC
     `);
@@ -107,7 +102,6 @@ class PhotoFile {
     const photoObjs = photos.map((photo) => ({
       photoId: photo.photo_id,
       metadata: photo.metadata,
-      caption: photo.caption,
       objectURL: `${AWS_URL}/${photo.photo_id}`
     }));
 
@@ -117,7 +111,7 @@ class PhotoFile {
   /** Gets a photo from database and s3 server */
   static async getPhoto(id) {
     const result = await db.query(`
-      SELECT photo_id, metadata, caption, date_created
+      SELECT photo_id, metadata, date_created
       FROM photos
       ORDER BY date_created DESC
     `);
@@ -126,7 +120,6 @@ class PhotoFile {
     const photoObj = {
       photoId: photo.photo_id,
       metadata: photo.metadata,
-      caption: photo.caption,
       objectURL: `${AWS_URL}/${photo.photo_id}`
     };
 

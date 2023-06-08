@@ -25,7 +25,7 @@ const upload = multer({ storage: storage });
   * Return JSON
 * */
 router.post("/", upload.single('image'), async function (req, res, next) {
-  const photo = await PhotoFile.uploadPhoto(req.file, req.body);
+  const photo = await PhotoFile.uploadPhoto(req.file);
 
   console.log("photo ==== ", photo);
 
