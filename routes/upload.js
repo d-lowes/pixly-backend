@@ -18,7 +18,6 @@ const PhotoFile = require("../photoFile");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-
 /*
   * POST ROUTE
   * Upload a photo to S3 bucket and save data to the DB
