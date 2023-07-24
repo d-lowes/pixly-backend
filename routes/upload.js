@@ -10,7 +10,6 @@ const router = new express.Router();
 // Class with static methods
 const PhotoFile = require("../photoFile");
 
-
 /****************************************************************************
  * Upload photo to multer
  *

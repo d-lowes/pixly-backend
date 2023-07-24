@@ -2,6 +2,7 @@
 
 // random hex generator
 const crypto = require('crypto');
+
 // postgresql db
 const db = require("./db");
 
@@ -11,10 +12,6 @@ const ExifImage = require('exif').ExifImage;
 // Import S3 client to upload to bucket.
 const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-// const client = new S3Client(clientParams);
-// const command = new GetObjectCommand(getObjectParams);
-// const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
-
 
 /****************************************************************************
  *  Generate a random hex code for an image name
@@ -64,6 +61,7 @@ class PhotoFile {
     const command = new PutObjectCommand(params);
     await s3.send(command);
 
+    //TODO: EXIF data parser is not pulling any data
     const exif = new ExifImage({ buffer });
     const exifData = exif.exifData;
 
